@@ -1,0 +1,50 @@
+<!DOCTYPE html>  
+    <html lang="en">  
+    <head>  
+        {% load static%}
+        <title>Signup</title>  
+        <meta charset="utf-8">  
+        <meta name="viewport" content="width=device-width, initial-scale=1">  
+        <link rel="stylesheet" href="{% static 'bootstrap/css/bootstrap.min.css'%}"> 
+        <link rel="stylesheet" href="{% static 'bootstrap/css/style_1.css'%}">
+        
+    </head>  
+<body style="background-color:teal">
+<div class="container" style="margin-top: 10%;">  
+        <div class="row justify-content-center">  
+            <div class="col-md-5 shadow-sm p-3 mb-5 bg-white rounded mt-2">  
+                
+                <h2 class="my-3">Plan the Events</h2>  
+                <form method="post">  
+                    {% csrf_token %} 
+                    <label class="text-danger">{{msg}} </label>
+                    {% if massages %}
+                    {% for message in messages%}
+                    <div class="mb-3">
+                    <div><label for="exampleInputEmail1" class="form-label"><em></label>{{massage}} </em><label  class="form-group" style="color: brown"></label></div> 
+                    </div>
+                    {% endfor %}
+                    {% endif %}
+                    <div class="form-group">  
+                        <label for="username">Username:</label>  
+                        <input type="text" class="form-control" id="username" placeholder="Enter username" name="username">  
+                    </div>   
+                    <div class="form-group">  
+                        <label for="pwd1">Password:</label>  
+                        <input type="password" class="form-control" id="pwd1" placeholder="Enter password" name="password">  
+                    </div>  
+                    <label class="mt-1 mb-3 text-primary text-right col-12"><a href="{% url 'signup' %}" style="text-decoration: none;">Forget Password?</a></label>
+                    <button type="submit" class="btn btn-info btn-block">Login</button>  
+
+                    <label class="mt-3 text-primary"><a href="{% url 'signup' %}" style="text-decoration: none;">New User? Signup</a></label>
+                </form>  
+            </div>  
+        </div>  
+    </div>
+
+
+    <script type="text/JavaScript" src="{% static 'bootstrap/js/jquery.min.js'%}" ></script>
+    <script type="text/JavaScript" src="{% static 'bootstrap/js/bootstrap.min.js'%}" ></script>
+    <script type="text/JavaScript" src="{% static 'bootstrap/js/popper.min.js'%}" ></script>
+</body>  
+</html>

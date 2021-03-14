@@ -1,0 +1,72 @@
+<!DOCTYPE html>  
+    <html lang="en">  
+    <head>  
+        {% load static%}
+        <title>Signup</title>  
+        <meta charset="utf-8">  
+        <meta name="viewport" content="width=device-width, initial-scale=1">  
+        <link rel="stylesheet" href="{% static 'bootstrap/css/bootstrap.min.css'%}"> 
+        <link rel="stylesheet" href="{% static 'bootstrap/css/style_1.css'%}">
+        
+    </head>  
+<body style="background-color:teal">
+<div class="container" style="margin-top: 10%;">  
+        <div class="row justify-content-center">  
+            <div class="col-md-5 shadow-sm p-3 mb-5 bg-white rounded mt-2">  
+                
+                <h2 class="mt-2">Action Taker Registration</h2>  
+                <form method="post">  
+                    {% csrf_token %}  
+                    
+                    <div class="form-group">  
+                        {% if form.username.errors %}
+                        {% for error in form.username.errors %}
+                        <label for="username">Username:</label> 
+                        <label  class="form-label text-danger">: {{error}}</label> 
+                        <input type="text" class="form-control" id="username" placeholder="Enter username" name="username"> 
+                        {% endfor %}
+                        {% else %} 
+                        <label for="username">Username:</label> 
+                        <input type="text" class="form-control" id="username" placeholder="Enter username" name="username"> 
+                        {% endif %}
+                    </div> 
+                    
+                    <div class="form-group">  
+                        {% if form.email.errors %}
+                        {% for error in form.email.errors %} 
+                        <label for="email">Email:</label>  
+                        <label  class="form-label text-danger">: {{error}}</label>
+                        <input type="email" class="form-control" id="email" placeholder="Enter email" name="email">  
+                        {% endfor %}
+                        {% else %} 
+                        <label for="email">Email:</label>  
+                        <input type="email" class="form-control" id="email" placeholder="Enter email" name="email">  
+                        {% endif %}
+                    </div>  
+                    <div class="form-group"> 
+                        {% if form.password.errors %}
+                        {% for error in form.password.errors %} 
+                        <label for="pwd1">Password:</label> 
+                        <label  class="form-label text-danger">: {{error}}</label> 
+                        <input type="password" class="form-control" id="pwd1" placeholder="Enter password" name="password"> 
+                        {% endfor %}
+                        {% else %}
+                        <label for="pwd1">Password:</label>  
+                        <input type="password" class="form-control" id="pwd1" placeholder="Enter password" name="password">
+                        {% endif %} 
+                    </div>  
+                    
+                    <button type="submit" class="btn btn-info btn-block">Submit</button>  
+
+                    <label class="mt-3 text-primary"><a href="{% url 'login' %}" style="text-decoration: none;">Existing User? Login</a></label>
+                </form>  
+            </div>  
+        </div>  
+    </div>
+
+
+    <script type="text/JavaScript" src="{% static 'bootstrap/js/jquery.min.js'%}" ></script>
+    <script type="text/JavaScript" src="{% static 'bootstrap/js/bootstrap.min.js'%}" ></script>
+    <script type="text/JavaScript" src="{% static 'bootstrap/js/popper.min.js'%}" ></script>
+</body>  
+</html>

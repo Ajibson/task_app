@@ -1,0 +1,21 @@
+{% extends 'events/home.html' %}
+
+{% block content %}
+<div class="container-fluid col-10 col-md-6   bg-white  py-3 " style="margin-top: 12%;">
+    <div class="card">
+        <h5 class="card-title py-3 text-white bg-secondary text-center">Update Task</h5>   
+        <div class="card-body">
+          <form action="{% url 'update_task' task.id %}" method="POST">
+            {% csrf_token %}
+            Title <input type='text' class="form-control  mb-3 mt-2" name = 'title' placeholder="Please add task" value="{{task.title}}">
+            Completed: <input type='checkbox' class=" ml-2 mt-2" name = 'completed' {% if task.completed %} checked {% endif %}>
+            <input type="submit" value='Update Task' class="btn btn-block form-control bg-info text-white mt-3">
+        </form>
+        </div>
+      </div>
+
+    
+    
+</div>
+
+{% endblock %}
