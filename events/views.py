@@ -1,4 +1,5 @@
 from django.shortcuts import render,redirect
+from django.urls import reverse
 from .models import *
 from .forms import *
 from django.core.mail import send_mail,BadHeaderError
@@ -12,6 +13,8 @@ from django.contrib.auth import login,authenticate
 from django.contrib.auth.models import User  
 from django.contrib import messages 
 from django.contrib.auth.decorators import login_required
+from django.db.models.query_utils import Q
+from datetime import timedelta
 
 def signup(request):
     if request.method == 'POST':
@@ -93,18 +96,41 @@ def Login(request):
             
 @login_required
 def home(request):
-    tasks = task.objects.all().order_by('-created_at')
+    tasks = task.objects.all().order_by('-due_at')
+    now = timezone.now() + timedelta(hours = 1)
+    print(now.hour)
+    if now.hour < 12:
+        greetings = 'Good Morning'
+    elif now.hour >= 12 and now.hour < 18:
+        greetings = 'Good Afternoon'
+    else:
+        greetings = 'Good Evening'
     if request.method == 'POST':
         form = taskForm(request.POST)
         if form.is_valid():
             form.save()
-            return redirect('/')
+            return redirect('home')
     else:
         form = taskForm()
     context = {
-        'tasks':tasks, 'form':form
+        'tasks':tasks, 'form':form, 'greetings':greetings
     }
     return render(request, 'events/home.html', context = context)
+
+def profile_update(request):
+    if request.method == 'POST':
+        form = usersForm(request.POST)
+        if form.is_valid():
+            username = form.cleaned_data.get('username')
+            email = form.cleaned_data.get('email')
+            db_user = User.objects.get(username = request.user.username)
+            db_user.username = username
+            db_user.email = email
+            db_user.save()
+            return redirect('home')
+    return redirect('home')
+
+
 
 @login_required
 def update_task(request, task_no):
@@ -116,9 +142,10 @@ def update_task(request, task_no):
             if form.is_valid():
                 title = form.cleaned_data.get('title')
                 completed = form.cleaned_data.get('completed')
-                print(title, completed)
+                due_at = form.cleaned_data.get('due_at')
+                print(title, completed, due_at)
                 form.save()
-                return redirect("/")
+                return redirect("home")
     except task.DoesNotExist:
         return redirect('home')
     context = {
@@ -133,7 +160,7 @@ def delete_task(request, task_no):
     if request.method == 'POST':
         task_to_delete = task.objects.get(pk = task_no)
         task_to_delete.delete()
-        return redirect("/")
+        return redirect("home")
     context = {
         'task':get_task, 'form':form
     }
@@ -147,21 +174,60 @@ def task_reminder(request, task_no):
     if request.method == 'POST':
         form = taskForm(request.POST, instance=get_task)
         form.save()
-        return redirect("/")
+        return redirect("home")
     context = {
         'task':task_list, 'form':form
     }
     return render(request, 'events/home.html',  context = context)
 
 
-def reminder(title):
-    pass
 
-now = timezone.now()
-task_re = task.objects.filter(remind_at__isnull = False)
-mail_times = []
-for time in task_re:
-    mail_times.append(time.remind_at)
-    if time.remind_at == now:
-        reminder(time.title)
-print(mail_times)
+#Password reset function
+
+def password_reset_request(request):
+    if request.method == "POST":
+        form = ResetForms(request.POST)
+        if form.is_valid():
+            user_email = form.cleaned_data.get('email')
+            associated_users = User.objects.filter(Q(email=user_email))
+            if associated_users.exists():
+                for user in associated_users:
+                    subject = "Password Reset Requested"
+                    email_template_name = "registration/password_reset_email.html"
+                    c = {
+                    "email":user.email,
+                    'domain':'127.0.0.1:8000',
+                    'site_name': 'Event Planner',
+                    "uid": urlsafe_base64_encode(force_bytes(user.pk)),
+                    "user": user,
+                    'token': default_token_generator.make_token(user),
+                    'protocol': 'http',
+                    }
+                    email = render_to_string(email_template_name, c)
+                    try:
+                        send_mail(subject, email, 'myvtuservice@gmail.com' , [user.email], fail_silently=False)
+                        return redirect("password_reset_done")
+                    except BadHeaderError:
+                        messages.error(request, 'please try again')
+                        return redirect('reset_password')
+            else:
+                messages.error(request, 'The email is not registered')
+                return redirect('reset_password')                         
+    else:
+        form = ResetForms()
+    return render(request, "registration/password_reset_form.html", {"password_reset_form":form})
+
+def password_reset_confirm(request,uidb64,token):
+    user_pk = force_text(urlsafe_base64_decode(uidb64))
+    user = User.objects.get(pk=user_pk)
+    if request.method == 'POST':
+        form = NewPasswordResetForm(request.POST)
+        if form.is_valid():
+            password1 = form.cleaned_data['password1']
+            password2 = form.cleaned_data['password2']
+            user.set_password(password1)
+            user.save()
+            return redirect('password_reset_complete')
+    else:
+        form = NewPasswordResetForm()
+    return render(request, 'registration/password_reset_confirm.html', {'form':form}) 

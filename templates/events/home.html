@@ -7,19 +7,73 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Events Planner</title>
     <link rel="stylesheet" href="{% static 'bootstrap/css/bootstrap.min.css'%}">
+    <link href="http://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.3.0/css/font-awesome.css" rel="stylesheet"  type='text/css'>
     <link rel="stylesheet" href="{% static 'bootstrap/css/style.css'%}">
     
 </head>
 <body>
     {% block content %}
-    <div class="container-fluid col-10 col-md-6   bg-white mt-3 pb-3" id="main">
-        <div class="row py-3">
-            <h4 class="text-left ml-3">Welcome to Event Planner</h4>
-            <h5 class="mr-3 ml-auto"><a href="{% url 'logout' %}">Log Out</a></h5>
+    <nav class="navbar navbar-expand-md navbar-light bg-light fixed-top" >
+        <a class="navbar-brand" href="#">Task Planner</a>
+        <!--<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>-->
+        <div class="nav-item dropdown ml-auto">
+            <a class="nav-link dropdown-toggle text-info" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              <i class="fa fa-cog " aria-hidden="true"></i>
+            </a>
+            <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right" style="left: inherit; right: 0px;">
+          
+              <a href="" class="dropdown-item" data-toggle="modal" data-target="#profileModal">
+                <i class="fa fa-user mr-2"></i> Update Profile
+              </a>
+    
+              <div class="dropdown-divider"></div>
+              <a href="{% url 'logout' %}" class="dropdown-item">
+                <i class="fa fa-power-off" aria-hidden="true"></i> Logout
+              </a>
+              
+            </div>
+        </div>
+        <!--
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+          <ul class="navbar-nav ml-auto">
+            <li class="nav-item active d-md-none">
+              <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
+            </li>
+            <li class="nav-item d-md-none">
+              <a class="nav-link" href="#">Link</a>
+            </li>
+            <li class="nav-item dropdown d-none d-md-block">
+              <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <i class="fa fa-cog" aria-hidden="true"></i>
+              </a>
+              <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right" style="left: inherit; right: 0px;">
+            
+                <a href="" class="dropdown-item">
+                  <i class="fa fa-user mr-2"></i> Update Profile
+                </a>
+      
+                <div class="dropdown-divider"></div>
+                <a href="{% url 'logout' %}" class="dropdown-item">
+                  <i class="fa fa-power-off" aria-hidden="true"></i> Logout
+                </a>
+                
+              </div>
+            </li>
+          </ul>
+          
+        </div>-->
+      </nav>
+    <div class="container-fluid col-10 col-md-6 mx-auto mt-5 bg-white pb-3" id="main" >
+        <div class="row pb-3 pt-4">
+            <h5 class="text-left ml-3">{{greetings}}, {{request.user.username}}</h5>
         </div>
         <form action="{% url 'home' %}" method="POST" >
             {% csrf_token %}
             <input type='text' class="form-control  mb-3 " name = 'title' placeholder="Please add task">
+            <input type='datetime-local' class="form-control  mb-3 " name = 'due_at' placeholder="due date....leave blank if no one">
+            <input type='number' class="form-control  mb-3 " name = 'percentage_completed' placeholder="Percentage done">
             <input type="submit" value="Add Task" class="btn btn-block form-control bg-info text-white" >
         </form>
 
@@ -27,7 +81,14 @@
         {% for task in tasks %}
         <div class="card mb-4 bg-secondary text-white">
             <div class="card-body">
-                <h5 class="card-title"> Task No {{forloop.counter}} ({{task.created_at}}) <span class="text-success ">{% if task.completed == True %} *** {% endif %}</span></h5>
+              <div class="row col-12">
+                <h5 class="card-title mr-auto"> Task No {{forloop.counter}}  <span class="text-primary ml-3">{{task.percentage_completed}}% </span>{% if task.completed %} 🥇 {% elif task.percentage_completed == 50 %} 🥉 {% elif task.percentage_completed > 50 %} 🥈 {% endif %}</h5>
+                {% if task.due_at %}
+                <h6 class="bg-danger btn text-white">Due: {{task.due_at.date}}</h6>
+                {% else %}
+                <h6 class="bg-danger btn text-white">Due: No due date </h6>
+                {% endif %}
+              </div>
                 {% if task.completed == True %}
                 <strike>Task: {{task.title}}</strike>
                 <div class="mt-3">
@@ -69,7 +130,54 @@
             </div>
           </div>
         {% endfor %}
-
+        <div class="modal fade" id="profileModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" >
+          <div class="modal-dialog " >
+          <div class="modal-content">
+              <div class="modal-header">
+              <h5 class="modal-title">Update Profile</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+              </button>
+              </div>
+              
+              <form action="{% url 'profile_update' %}" method="POST">
+                <div class="modal-body">
+                  {% csrf_token %}
+                  <div class="form-group">  
+                    {% if form.username.errors %}
+                    {% for error in form.username.errors %}
+                    <label for="username">Username:</label> 
+                    <label  class="form-label text-danger">: {{error}}</label> 
+                    <input type="text" class="form-control" id="username" placeholder="Enter username" name="username" value='{{request.user.username}}'> 
+                    {% endfor %}
+                    {% else %} 
+                    <label for="username">Username:</label> 
+                    <input type="text" class="form-control" id="username" placeholder="Enter username" name="username"  value='{{request.user.username}}'> 
+                    {% endif %}
+                </div> 
+                
+                <div class="form-group">  
+                    {% if form.email.errors %}
+                    {% for error in form.email.errors %} 
+                    <label for="email">Email:</label>  
+                    <label  class="form-label text-danger">: {{error}}</label>
+                    <input type="email" class="form-control" id="email" placeholder="Enter email" name="email" value='{{request.user.email}}'>  
+                    {% endfor %}
+                    {% else %} 
+                    <label for="email">Email:</label>  
+                    <input type="email" class="form-control" id="email" placeholder="Enter email" name="email" value='{{request.user.email}}'>  
+                    {% endif %}
+                </div>                    
+                  </div>
+                  <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary bg-danger" data-dismiss="modal">Cancel</button>
+                  <button type="submit" class="btn btn-primary">Update Profile</button>
+                </div>
+              </form>
+              
+          </div>
+          </div>
+      </div>
          
     </div>
 

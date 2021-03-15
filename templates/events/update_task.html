@@ -1,19 +1,46 @@
 {% extends 'events/home.html' %}
 
 {% block content %}
-<div class="container-fluid col-10 col-md-6   bg-white  py-3 " style="margin-top: 12%;">
-    <div class="card">
+
+<nav class="navbar navbar-expand-md navbar-light bg-light fixed-top" >
+  <a class="navbar-brand" href="#">Navbar</a>
+  <!--<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>-->
+  <div class="nav-item dropdown ml-auto">
+      <a class="nav-link dropdown-toggle text-info" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        <i class="fa fa-cog " aria-hidden="true"></i>
+      </a>
+      <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right" style="left: inherit; right: 0px;">
+    
+        <a href="" class="dropdown-item">
+          <i class="fa fa-user mr-2"></i> Update Profile
+        </a>
+
+        <div class="dropdown-divider"></div>
+        <a href="{% url 'logout' %}" class="dropdown-item">
+          <i class="fa fa-power-off" aria-hidden="true"></i> Logout
+        </a>
+        
+      </div>
+  </div>
+  </nav>
+<div class="container-fluid col-10 col-md-6   bg-white  py-3 mt-5" >
+    <div class="card my-5">
         <h5 class="card-title py-3 text-white bg-secondary text-center">Update Task</h5>   
         <div class="card-body">
           <form action="{% url 'update_task' task.id %}" method="POST">
             {% csrf_token %}
             Title <input type='text' class="form-control  mb-3 mt-2" name = 'title' placeholder="Please add task" value="{{task.title}}">
+            percentage_completed<input type='text' class="form-control  mb-3 mt-2" name = 'percentage_completed'  value="{{task.percentage_completed}}">
+            Due on: {{task.due_at}}
+            <input type='datetime-local' class="form-control  mb-3 mt-2" name = 'due_at' placeholder="Please add task" value="{% if task.due_at %} {{task.due_at|date:'Y m d, h i s' }} {% else %} {% endif %}">
             Completed: <input type='checkbox' class=" ml-2 mt-2" name = 'completed' {% if task.completed %} checked {% endif %}>
             <input type="submit" value='Update Task' class="btn btn-block form-control bg-info text-white mt-3">
         </form>
         </div>
       </div>
-
+      
     
     
 </div>
