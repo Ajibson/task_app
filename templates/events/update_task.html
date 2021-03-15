@@ -32,9 +32,10 @@
           <form action="{% url 'update_task' task.id %}" method="POST">
             {% csrf_token %}
             Title <input type='text' class="form-control  mb-3 mt-2" name = 'title' placeholder="Please add task" value="{{task.title}}">
+            <input type='hidden' class="form-control  mb-3 " name = 'user' value = "{{request.user.pk}}">
             percentage_completed<input type='text' class="form-control  mb-3 mt-2" name = 'percentage_completed'  value="{{task.percentage_completed}}">
             Due on: {{task.due_at}}
-            <input type='datetime-local' class="form-control  mb-3 mt-2" name = 'due_at' placeholder="Please add task" value="{% if task.due_at %} {{task.due_at|date:'Y m d, h i s' }} {% else %} {% endif %}">
+            <input type='datetime-local' class="form-control  mb-3 mt-2" name = 'due_at' placeholder="Please add task">
             Completed: <input type='checkbox' class=" ml-2 mt-2" name = 'completed' {% if task.completed %} checked {% endif %}>
             <input type="submit" value='Update Task' class="btn btn-block form-control bg-info text-white mt-3">
         </form>

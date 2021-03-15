@@ -40,7 +40,7 @@ def signup(request):
             email = render_to_string(email_template_name, c)
             try:
                 send_mail(subject, email, 'myvtuservice@gmail.com' , [str(form.cleaned_data.get('email'))], fail_silently=False)
-                return HttpResponse('Please confirm your email address to complete the registration')
+                return render(request, 'events/account_confirmation_sent.html')
             except BadHeaderError:
                 #messages.error(request, 'please try again')
                 form = user_signup() 
@@ -64,7 +64,7 @@ def activate(request, uidb64, token):
     if user is not None:  
         user.is_active = True  
         user.save()  
-        return HttpResponse('Thank you for your email confirmation. Now you can login your account.')  
+        return render(request, 'events/account_confirmed.html') 
     else:  
         print('last')
         return HttpResponse('Activation link is invalid!')
@@ -96,9 +96,8 @@ def Login(request):
             
 @login_required
 def home(request):
-    tasks = task.objects.all().order_by('-due_at')
+    tasks = task.objects.filter(user = request.user).order_by('-due_at')
     now = timezone.now() + timedelta(hours = 1)
-    print(now.hour)
     if now.hour < 12:
         greetings = 'Good Morning'
     elif now.hour >= 12 and now.hour < 18:
@@ -136,6 +135,7 @@ def profile_update(request):
 def update_task(request, task_no):
     try:
         get_task = task.objects.get(pk = task_no)
+        due_at_bf = get_task.due_at
         form = taskForm(instance=get_task)
         if request.method == 'POST':
             form = taskForm(request.POST, instance=get_task)
@@ -143,8 +143,15 @@ def update_task(request, task_no):
                 title = form.cleaned_data.get('title')
                 completed = form.cleaned_data.get('completed')
                 due_at = form.cleaned_data.get('due_at')
-                print(title, completed, due_at)
-                form.save()
+                percentage_completed = form.cleaned_data.get('percentage_completed')
+                if due_at is None:
+                    due_at = due_at_bf
+                if completed == True and int(percentage_completed) < 100:
+                    percentage_completed = 100
+                save_task = form.save(commit = False)
+                save_task.due_at = due_at
+                save_task.percentage_completed = percentage_completed
+                save_task.save()
                 return redirect("home")
     except task.DoesNotExist:
         return redirect('home')

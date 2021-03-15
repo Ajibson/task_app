@@ -72,7 +72,11 @@
         <form action="{% url 'home' %}" method="POST" >
             {% csrf_token %}
             <input type='text' class="form-control  mb-3 " name = 'title' placeholder="Please add task">
-            <input type='datetime-local' class="form-control  mb-3 " name = 'due_at' placeholder="due date....leave blank if no one">
+            <input type='hidden' class="form-control  mb-3 " name = 'user' value = "{{request.user.pk}}">
+            <div class="row col-12   pl-3">
+                <label class="col-2 pl-0">Due Date</label>
+                <input type='datetime-local' class="form-control  mb-3 col-10" name = 'due_at' placeholder="due date....leave blank if no one">
+             </div>
             <input type='number' class="form-control  mb-3 " name = 'percentage_completed' placeholder="Percentage done">
             <input type="submit" value="Add Task" class="btn btn-block form-control bg-info text-white" >
         </form>
