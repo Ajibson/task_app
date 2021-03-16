@@ -68,6 +68,13 @@
     <div class="container-fluid col-10 col-md-6 mx-auto mt-5 bg-white pb-3" id="main" >
         <div class="row pb-3 pt-4">
             <h5 class="text-left ml-3">{{greetings}}, {{request.user.username}}</h5>
+            {% if massages %}
+            {% for message in messages%}
+            <div class="mb-3">
+              <div><label for="exampleInputEmail1" class="form-label"><em></label>{{massage}} </em><label  class="form-group" style="color: brown"></label></div> 
+            </div>
+            {% endfor %}
+            {% endif %}
         </div>
         <form action="{% url 'home' %}" method="POST" >
             {% csrf_token %}
