@@ -108,6 +108,7 @@ def home(request):
         form = taskForm(request.POST)
         if form.is_valid():
             form.save()
+            messages.success(request, 'Task added successfully')
             return redirect('home')
     else:
         form = taskForm()
@@ -126,6 +127,7 @@ def profile_update(request):
             db_user.username = username
             db_user.email = email
             db_user.save()
+            messages.success(request, 'profile updated successfully')
             return redirect('home')
     return redirect('home')
 
@@ -152,6 +154,7 @@ def update_task(request, task_no):
                 save_task.due_at = due_at
                 save_task.percentage_completed = percentage_completed
                 save_task.save()
+                messages.success(request, 'Task updated successfully')
                 return redirect("home")
     except task.DoesNotExist:
         return redirect('home')
@@ -167,6 +170,7 @@ def delete_task(request, task_no):
     if request.method == 'POST':
         task_to_delete = task.objects.get(pk = task_no)
         task_to_delete.delete()
+        messages.success(request, 'Task deleted successfully')
         return redirect("home")
     context = {
         'task':get_task, 'form':form
