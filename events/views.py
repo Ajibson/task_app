@@ -82,7 +82,6 @@ def Login(request):
                     username = form.cleaned_data.get('username'),
                     password = form.cleaned_data.get('password')
                     )
-            print(user)
             if user is None:
                 messages.error(request, "Wrong username or password")
                 msg = 'Wrong username or password'
@@ -150,9 +149,12 @@ def update_task(request, task_no):
                     due_at = due_at_bf
                 if completed == True and int(percentage_completed) < 100:
                     percentage_completed = 100
+                elif completed == False and int(percentage_completed) == 100:
+                    completed = True
                 save_task = form.save(commit = False)
                 save_task.due_at = due_at
                 save_task.percentage_completed = percentage_completed
+                save_task.completed = completed
                 save_task.save()
                 messages.success(request, 'Task updated successfully')
                 return redirect("home")

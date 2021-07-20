@@ -136,3 +136,7 @@ else:
     EMAIL_PORT = str(os.environ.get("EMAIL_PORT"))
     EMAIL_USE_TLS = str(os.environ.get("EMAIL_USE_TLS"))
     DEFAULT_FROM_MAIL = str(os.environ.get("DEFAULT_FROM_MAIL"))
+
+
+
+DEFAULT_AUTO_FIELD='django.db.models.AutoField'
