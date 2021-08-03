@@ -30,7 +30,7 @@ def signup(request):
             subject = "Account Acctivation"
             c = {
                     "email":form.cleaned_data.get('email'),
-                    'domain':'127.0.0.1:8000',
+                    'domain':'next-to.herokuapp.com',
                     'site_name': 'Event Planner',
                     "uid": urlsafe_base64_encode(force_bytes(user.pk)),
                     "user": user,
